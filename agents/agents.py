@@ -39,15 +39,11 @@ class VEvalTemporalDifferencing(object):
         # TO IMPLEMENT
         # Ingredients : discount, values, learning_rate, old position, new position, reward,...
         #
-        values=np.zeros_like(self.values)
-        for s in range(len(values)):
-            for s_prime in range(len(self.values)):
-                if s_prime!=s:
-                    values[s]+=0.25*self.values[s_prime]
-            values[s]*=self.discount
-            values[s]+=self.values[s]
-        self.values=values
-    
+        old_values = np.copy(self.values)
+        for ix in range(self.values.shape[0]):
+            for iy in range(self.values.shape[1]):
+                correct_values_to_move = [old_values[ix+dx, iy+dy] for dx, dy in [(+1, 0), (0, +1), (-1, 0), (0, -1)] if -1<ix+dx<self.values.shape[0] and -1<iy+dy<self.values.shape[1] and (ix, iy) not in self.mdp.walls]
+                self.values[ix, iy] = self.mdp.grid[ix, iy] + self.discount * sum(0.25 * np.array(correct_values_to_move)) + 0.25 * (4 - len(correct_values_to_move)) * self.mdp.penalty
 
     def action(self):
         self.last_position = self.mdp.position
