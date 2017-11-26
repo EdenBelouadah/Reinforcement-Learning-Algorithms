@@ -34,19 +34,14 @@ class VEvalTemporalDifferencing(object):
         self.values = np.zeros(mdp.size)  # Store state values in this variable
         self.learning_rate = kwargs.get('learning_rate', 0.1)
         self.discount = kwargs.get('discount', 0.6)
+        
 
     def update(self):
+        
         # TO IMPLEMENT
         # Ingredients : discount, values, learning_rate, old position, new position, reward,...
         #
-        values=np.zeros_like(self.values)
-        for s in range(len(values)):
-            for s_prime in range(len(self.values)):
-                if s_prime!=s:
-                    values[s]+=0.25*self.values[s_prime]
-            values[s]*=self.discount
-            values[s]+=self.values[s]
-        self.values=values
+        self.values[self.last_position]+=self.learning_rate*(self.discount*self.values[self.mdp.position]-self.values[self.last_position]+self.mdp.grid[self.last_position])
     
 
     def action(self):
