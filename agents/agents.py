@@ -36,13 +36,8 @@ class VEvalTemporalDifferencing(object):
         self.discount = kwargs.get('discount', 0.6)
         
 
-    def update(self):
-        
-        # TO IMPLEMENT
-        # Ingredients : discount, values, learning_rate, old position, new position, reward,...
-        #
+    def update(self):     
         self.values[self.last_position]+=self.learning_rate*(self.discount*self.values[self.mdp.position]-self.values[self.last_position]+self.mdp.grid[self.last_position])
-    
 
     def action(self):
         self.last_position = self.mdp.position
@@ -62,10 +57,19 @@ class VEvalMonteCarlo(object):
         self.discount = kwargs.get('discount', 0.6)
 
     def update(self):
-        # TO IMPLEMENT
-        # Ingredients: Reward, history of positions, values, discount,...
-        pass
-    
+        if(self.mdp.reward[-1][-1]!=-1):
+            states= [(x,y) for x in range(self.mdp.grid.shape[0]) for y in range(self.mdp.grid.shape[1])]
+            for state in states:
+                value=0
+                nb_episodes=0
+                for episode in self.mdp.history:
+                    if state in episode:
+                        nb_episodes+=1
+                        idx=episode.index(state)
+                        while idx<len(episode):
+                            value+=pow(self.discount,idx)*self.mdp.grid[episode[idx]]
+                            idx+=1
+                self.values[state]=value
 
     def action(self):
         self.last_position = self.mdp.position
