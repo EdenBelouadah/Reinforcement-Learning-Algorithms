@@ -58,7 +58,7 @@ class VEvalMonteCarlo(object):
         self.discount = kwargs.get('discount', 0.6)
 
     def update(self):
-        #Test if we are just about to finish an episode
+        #Test if we are just about to finish an episode, otherwise we don't update anything
         if(self.mdp.reward[-1][-1]!=-1):
             #Generate the list of all possible states
             states= [(x,y) for x in range(self.mdp.grid.shape[0]) for y in range(self.mdp.grid.shape[1])]
