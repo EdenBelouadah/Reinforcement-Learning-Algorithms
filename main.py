@@ -36,7 +36,6 @@ agent_options = vars(args)
 agent_options.pop('agent')
 
 
-
 class GridMDP(object):
     def __init__(self, size=(5, 5), starting_point="fixed", terminal_states=[((4, 4), 20)], stochasticity=0.0, walls=[], penalty=-5):
         super(GridMDP, self).__init__()
@@ -52,8 +51,9 @@ class GridMDP(object):
         self.history = []
         self.restart()
         self.size = size
+        self.starting_point = starting_point
 
-    def restart(self):#ajouter [0] aux récompenses et rechoisir un nouveau point de départ
+    def restart(self):
         self.reward.append([0])
         if self.starting_point == "fixed":
             self.position = (0, 0)
@@ -88,7 +88,6 @@ class GridMDP(object):
                 self.position = n_position
             return np.sum([np.sum(i) for i in self.reward])
         except IndexError:
-            self.restart()
             self.reward[-1].append(self.penalty)
             self.history[-1].append(self.position)
             return np.sum([np.sum(i) for i in self.reward])
@@ -147,15 +146,10 @@ class AgentTester:
 
 if __name__ == '__main__':
     try:
-        tester = AgentTester(arg_dico[agent], 3000,
+        tester = AgentTester(arg_dico[agent], 10000,
                              agent_options)
         # Do not modify.
         meanrewards, meanvalues, statevalues = tester.test()
-        print (meanrewards)
-        print('-----------')
-        print(meanvalues)
-        print('-----------')
-        print(statevalues)
         plot_results(meanrewards, meanvalues, statevalues)
     except NotImplementedError as e:
         print('Unimplemented agent: {}'.format(
