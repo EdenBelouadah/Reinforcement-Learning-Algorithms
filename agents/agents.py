@@ -37,6 +37,7 @@ class VEvalTemporalDifferencing(object):
         
 
     def update(self):     
+        #Direct application of the formula
         self.values[self.last_position]+=self.learning_rate*(self.discount*self.values[self.mdp.position]-self.values[self.last_position]+self.mdp.grid[self.last_position])
 
     def action(self):
@@ -57,19 +58,24 @@ class VEvalMonteCarlo(object):
         self.discount = kwargs.get('discount', 0.6)
 
     def update(self):
+        #Test if we are just about to finish an episode
         if(self.mdp.reward[-1][-1]!=-1):
+            #Generate the list of all possible states
             states= [(x,y) for x in range(self.mdp.grid.shape[0]) for y in range(self.mdp.grid.shape[1])]
             for state in states:
-                value=0
-                nb_episodes=0
-                for episode in self.mdp.history:
+                value=0 #Initialization of the value function of the state
+                nb_episodes=0 #Initialization of the number of episodes where the state figues
+                for episode in self.mdp.history:#Iterate through all episodes
                     if state in episode:
                         nb_episodes+=1
-                        idx=episode.index(state)
-                        while idx<len(episode):
+                        idx=episode.index(state)#Find the first utilization of the state in the episode
+                        while idx<len(episode):#Sum of rewards starting from the current state
                             value+=pow(self.discount,idx)*self.mdp.grid[episode[idx]]
                             idx+=1
-                self.values[state]=value
+                if nb_episodes==0:
+                    self.values[state]=0
+                else:
+                    self.values[state]=value/nb_episodes
 
     def action(self):
         self.last_position = self.mdp.position
