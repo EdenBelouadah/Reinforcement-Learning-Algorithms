@@ -36,9 +36,11 @@ class VEvalTemporalDifferencing(object):
         self.discount = kwargs.get('discount', 0.6)
         
 
-    def update(self):     
+    def update(self):  
         #Direct application of the formula
-        self.values[self.last_position]+=self.learning_rate*(self.discount*self.values[self.mdp.position]-self.values[self.last_position]+self.mdp.grid[self.last_position])
+#        if(len(self.mdp.reward)>2 and self.last_position==(0,0)):
+#            self.values[(4,4)]+=self.learning_rate*(self.mdp.reward[-2][-1]+self.discount*self.values[(0,0)]-self.values[(4,4)])
+        self.values[self.last_position]+=self.learning_rate*(self.mdp.reward[-1][-1]+self.discount*self.values[self.mdp.position]-self.values[self.last_position])
 
     def action(self):
         self.last_position = self.mdp.position
@@ -59,23 +61,26 @@ class VEvalMonteCarlo(object):
 
     def update(self):
         #Test if we are just about to finish an episode, otherwise we don't update anything
-        if(self.mdp.reward[-1][-1]!=-1):
+        if(self.mdp.reward[-1]==[0]):
             #Generate the list of all possible states
             states= [(x,y) for x in range(self.mdp.grid.shape[0]) for y in range(self.mdp.grid.shape[1])]
             for state in states:
                 value=0 #Initialization of the value function of the state
+                ep=-1 #index of the episode in history
                 nb_episodes=0 #Initialization of the number of episodes where the state figues
                 for episode in self.mdp.history:#Iterate through all episodes
+                    ep+=1    
                     if state in episode:
                         nb_episodes+=1
                         idx=episode.index(state)#Find the first utilization of the state in the episode
+                        t=0
                         while idx<len(episode):#Sum of rewards starting from the current state
-                            value+=pow(self.discount,idx)*self.mdp.grid[episode[idx]]
+                            value+=pow(self.discount,t)*self.mdp.reward[ep][idx]#self.mdp.grid[episode[idx]]
                             idx+=1
-                if nb_episodes==0:
-                    self.values[state]=0
-                else:
+                            t+=1
+                if nb_episodes!=0:
                     self.values[state]=value/nb_episodes
+                    
 
     def action(self):
         self.last_position = self.mdp.position

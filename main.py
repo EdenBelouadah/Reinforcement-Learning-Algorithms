@@ -86,6 +86,8 @@ class GridMDP(object):
             else:
                 self.reward[-1].append(-1)
                 self.position = n_position
+                if(self.position ==(4,4)):
+                    print("yes!!!")
             return np.sum([np.sum(i) for i in self.reward])
         except IndexError:
             self.reward[-1].append(self.penalty)
@@ -150,7 +152,9 @@ if __name__ == '__main__':
                              agent_options)
         # Do not modify.
         meanrewards, meanvalues, statevalues = tester.test()
+        print(statevalues)
         plot_results(meanrewards, meanvalues, statevalues)
+        
     except NotImplementedError as e:
         print('Unimplemented agent: {}'.format(
               e.args[0]))
