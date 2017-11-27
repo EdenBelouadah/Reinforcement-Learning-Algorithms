@@ -38,8 +38,6 @@ class VEvalTemporalDifferencing(object):
 
     def update(self):  
         #Direct application of the formula
-#        if(len(self.mdp.reward)>2 and self.last_position==(0,0)):
-#            self.values[(4,4)]+=self.learning_rate*(self.mdp.reward[-2][-1]+self.discount*self.values[(0,0)]-self.values[(4,4)])
         self.values[self.last_position]+=self.learning_rate*(self.mdp.reward[-1][-1]+self.discount*self.values[self.mdp.position]-self.values[self.last_position])
 
     def action(self):
@@ -75,7 +73,7 @@ class VEvalMonteCarlo(object):
                         idx=episode.index(state)#Find the first utilization of the state in the episode
                         t=0
                         while idx<len(episode):#Sum of rewards starting from the current state
-                            value+=pow(self.discount,t)*self.mdp.reward[ep][idx]#self.mdp.grid[episode[idx]]
+                            value+=pow(self.discount,t)*self.mdp.reward[ep][idx]
                             idx+=1
                             t+=1
                 if nb_episodes!=0:

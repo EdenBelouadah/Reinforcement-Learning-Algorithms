@@ -152,7 +152,6 @@ if __name__ == '__main__':
                              agent_options)
         # Do not modify.
         meanrewards, meanvalues, statevalues = tester.test()
-        print(statevalues)
         plot_results(meanrewards, meanvalues, statevalues)
         
     except NotImplementedError as e:
