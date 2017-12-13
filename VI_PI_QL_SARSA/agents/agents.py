@@ -4,7 +4,7 @@ VEvalTemporalDifferencing and VEvalMonteCarlo (TD0)
 """
 import numpy as np
 import math
-
+import copy
 
 class Agent(object):
     # DO NOT MODIFY
@@ -25,6 +25,22 @@ class Agent(object):
 
         # For others: Q values
         self.Q = np.zeros((4, mdp.size[0], mdp.size[1]))
+        #for Epsilon greedy step:
+        self.epsilon=0.25
+        self.beta=0.8
+        self.states= [(x,y) for x in range(self.mdp.grid.shape[0]) for y in range(self.mdp.grid.shape[1])]
+        
+    def normalize(self,Q):
+        P=copy.deepcopy(Q)
+        for a in range(P.shape[0]):
+            mini=np.min(P[a])
+            maxi=np.max(P[a])
+            for i in range(P.shape[1]):
+                for j in range(P.shape[2]):
+                    P[a,i,j]=(P[a,i,j]-mini)/(maxi-mini)
+        return P  
+        
+        
 
     def update(self):
         # DO NOT MODIFY
@@ -41,14 +57,39 @@ class ValueIteration(Agent):
     def __init__(self, mdp, initial_policy=None, *args, **kwargs):
         super(ValueIteration, self).__init__(
             mdp, initial_policy, *args, **kwargs)
+        
+        self.stop=False
+
+    def state_neighbors(self,state):
+        condidates=[(state[0]+1,state[1]),(state[0]-1,state[1]),(state[0],state[1]+1),(state[0],state[1]-1)]
+        neighbors=[condidate for condidate in condidates if ((condidate not in self.mdp.walls)and(condidate[0]>=0 and condidate[1]>=0  and condidate[0]<=9 and condidate[1]<=9))]
+        #print("state="+str(state)+    "neighbors="+str(neighbors))
+        return neighbors
+
 
     def update(self):
-        # TO IMPLEMENT
-        raise NotImplementedError
-
+        if(self.stop==False):
+            self.V[self.last_position]+=self.learning_rate*(self.mdp.reward[-1][-1]+self.discount*self.V[self.mdp.position]-self.V[self.last_position])
+            prev_v = np.copy(self.V)
+            for state in self.states:
+                neighbors=self.state_neighbors(state)
+                self.V[state]=self.mdp.reward[-1][-1]+self.discount*(np.max([sum([(1-self.mdp.stochasticity)*prev_v[s_] for s_ in neighbors]) for a in range(4)])) 
+            
+            if (np.sum(np.fabs(prev_v - self.V)) <= 1e-2):
+                print ('Value-iteration converged')  
+                self.stop=True
+            
     def action(self):
-        # YOU CAN MODIFY
-        return super(ValueIteration, self).action()
+        state=self.mdp.position
+        if(np.random.uniform(0,1)<self.epsilon):
+            action=np.random.choice(range(4))
+        else:         
+           # action=action_to_best_state
+           action=np.random.choice(range(4))
+        self.last_position=state
+        #self.last_action=action
+        action = self.actions[action]
+        return action
 
 
 class PolicyIteration(Agent):
@@ -68,52 +109,49 @@ class PolicyIteration(Agent):
 class QLearning(Agent):
     def __init__(self, mdp, initial_policy=None, *args, **kwargs):
         super(QLearning, self).__init__(mdp, initial_policy, *args, **kwargs)
-
-
-    def learn(self, state1, action1, reward, state2):
-        maxqnew = max([self.Q[a,state2[0],state2[1]] for a in range(4)])
-        self.learnQ(state1, action1, reward, reward + self.discount*maxqnew)
-
-    def learnQ(self, state, action, reward, value):
-        oldv = self.Q[action,state[0],state[1]]
-        self.Q[action,state[0],state[1]] = oldv + self.learning_rate * (value - oldv)
+        self.V=None
+       
 
     def update(self):
-        # TO IMPLEMENT
-        self.learn(self.last_position, self.last_action, self.mdp.reward[-1][-1], self.mdp.position)
+        state1=self.last_position
+        action1=self.last_action
+        reward=self.mdp.reward[-1][-1] #
+        state2=self.mdp.position
+        maxqnew = max([self.Q[a,state2[0],state2[1]] for a in range(4)])
+        oldv = self.Q[action1,state1[0],state1[1]]
+        self.Q[action1,state1[0],state1[1]] = oldv + self.learning_rate * (reward + self.discount*maxqnew - oldv)
+        self.policy=self.normalize(self.Q)
 
     def action(self):
-        # YOU CAN MODIFY
         state=self.mdp.position
-        if(np.random.uniform(0,1)<0.1):
+        if(np.random.uniform(0,1)<self.epsilon):
             action=np.random.choice(range(4))
+            self.epsilon*=self.beta
         else:         
             q = [self.Q[a, state[0],state[1]] for a in range(4)]
             action=np.argmax(q)
         self.last_position=state
         self.last_action=action
-        action = self.actions[action]
+        action = self.actions[action]       
         return action
 
 class SARSA(Agent):
     def __init__(self, mdp, initial_policy=None, *args, **kwargs):
         super(SARSA, self).__init__(mdp, initial_policy, *args, **kwargs)
-	
-    def learn(self, state1, action1, reward, state2, action2):
-        qnext = self.Q[action2,state2[0],state2[1]]
-        self.learnQ(state1, action1, reward, reward + self.discount * qnext)
+        self.V=None
         
-    def learnQ(self, state, action, reward, value):
-        oldv = self.Q[action,state[0],state[1]]
-        self.Q[action,state[0],state[1]] = oldv + self.learning_rate * (value - oldv)
-
     def update(self):
-        # TO IMPLEMENT
-        self.learn(self.last_last_position, self.last_last_action, self.mdp.reward[-1][-1], self.last_position,self.last_action)
+        state1=self.last_last_position
+        action1=self.last_last_action
+        reward=self.mdp.reward[-1][-1]
+        state2=self.last_position
+        action2=self.last_action
+        qnext = self.Q[action2,state2[0],state2[1]]
+        oldv = self.Q[action1,state1[0],state1[1]]
+        self.Q[action1,state1[0],state1[1]] = oldv + self.learning_rate * (reward + self.discount * qnext - oldv)
+        self.policy=self.normalize(self.Q)
 
     def action(self):
-        # YOU CAN MODIFY
-
         state=self.mdp.position
         if(np.random.uniform(0,1)<0.1):
             action=np.random.choice(range(4))

@@ -130,7 +130,7 @@ class AgentTester:
         if params['grid'] == 1:
             self.mdp = GridMDP(size=(10, 10), starting_point="fixed",
                                terminal_states=[((9, 9), 20)],
-                               stochasticity=0.0,
+                               stochasticity=0.2,
                                walls=[(1, 5), (1, 4), (1, 3), (1, 2), (1, 1), (0, 5), (5, 7), (5, 8), (5, 9), (5, 6), (5, 5), (5, 4)], penalty=-5)
         elif params['grid'] == 0:
             self.mdp = GridMDP()
