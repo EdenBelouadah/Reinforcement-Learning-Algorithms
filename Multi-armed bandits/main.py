@@ -75,6 +75,7 @@ def plot_results(meanrewards, meanoptimals):
 
 class AgentTester:
     def __init__(self, agentClass, N, k, iterations, params):
+        print("running agent "+str(agentClass))
         self.iterations = iterations
         self.N = N
         self.agentClass = agentClass
@@ -115,13 +116,18 @@ class AgentTester:
 # Modify only the agent class and the parameter dictionnary.
 
 if __name__ == '__main__':
+
     try:
+        from time import time
+        debut = time()
         tester = AgentTester(eval(arg_dico[agent]), 2000, 10, 1000,
                              agent_options)
-        # Do not modify.
         meanrewards, meanoptimals = tester.test()
+        fin = time()
+        print("\ntemps d'exécution =" + str(fin - debut)[:7] + " s")
         plot_results(meanrewards, meanoptimals)
     except NameError as e:
         print('Unimplemented agent: {}'.format(
               e.args[0]))
+
 
