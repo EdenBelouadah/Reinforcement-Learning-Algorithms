@@ -3,23 +3,23 @@ import numpy as np
 
 
 class MountainCar():
-    """A mountain-car problem.
-
-    Usage:
-        >>> mc = MountainCar()
-
-        Set the agent to apply a rightward force (positive in x)
-        >>> mc.apply_force(+1) # the actual value doesn't mattter, only the sign
-
-        Run an "agent time step" of 1s with 0.01 s integration time step
-        >>> mc.simulate_timesteps(n = 100, dt = 0.01)
-
-        Check the state variables of the agent, and the reward
-        >>> print mc.x, mc.x_d, mc.R
-
-        At some point, one might want to reset the position/speed of the car
-        >>> mc.reset()
-    """
+    # """A mountain-car problem.
+    #
+    # Usage:
+    #     >>> mc = MountainCar()
+    #
+    #     Set the agent to apply a rightward force (positive in x)
+    #     >>> mc.apply_force(+1) # the actual value doesn't mattter, only the sign
+    #
+    #     Run an "agent time step" of 1s with 0.01 s integration time step
+    #     >>> mc.simulate_timesteps(n = 100, dt = 0.01)
+    #
+    #     Check the state variables of the agent, and the reward
+    #     >>> print (mc.x, mc.x_d, mc.R)
+    #
+    #     At some point, one might want to reset the position/speed of the car
+    #     >>> mc.reset()
+    # """
 
     def __init__(self, g=10.0, d=100.0, H=10., m=10.0, F=3.0, R=1.,
                  T=0.0):
@@ -145,24 +145,24 @@ class MountainCar():
 
 class MountainCarViewer():
     """Display the state of a MountainCar instance.
-
-    Usage:
-        >>> mc = MountainCar()
-
-        >>> mv = MoutainCarViewer(mc)
-
-        Turn matplotlib's "interactive mode" on and create figure
-        >>> plb.ion()
-        >>> mv.create_figure(n_steps = 200, max_time = 200)
-
-        This forces matplotlib to draw the fig. before the end of execution
-        >>> plb.draw()
-
-        Simulate the MountainCar, visualizing the state
-        >>> for n in range(200):
-        >>>     mc.simulate_timesteps(100,0.01)
-        >>>     mv.update_figure()
-        >>>     plb.draw()
+    #
+    # Usage:
+    #     >>> mc = MountainCar()
+    #
+    #     >>> mv = MoutainCarViewer(mc)
+    #
+    #     Turn matplotlib's "interactive mode" on and create figure
+    #     >>> plb.ion()
+    #     >>> mv.create_figure(n_steps = 200, max_time = 200)
+    #
+    #     This forces matplotlib to draw the fig. before the end of execution
+    #     >>> plb.draw()
+    #
+    #     Simulate the MountainCar, visualizing the state
+    #     >>> for n in range(200):
+    #     >>>     mc.simulate_timesteps(100,0.01)
+    #     >>>     mv.update_figure()
+    #     >>>     plb.draw()
     """
 
     def __init__(self, mountain_car):
