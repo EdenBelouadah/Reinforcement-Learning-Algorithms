@@ -28,7 +28,7 @@ class RandomAgent():
 # implement your own agent here
 
 class MyAgent():
-    def __init__(self, p=2, k=2, discount=0.6, learning_rate=0.1, epsilon=1):
+    def __init__(self, p=2, k=2, discount=0.6, learning_rate=0.1, epsilon=0.1):
         """
         Initialize your internal state
         """
@@ -101,7 +101,7 @@ class MyAgent():
         # self.w += self.learning_rate * difference * self.phi
         # self.state = next_state
         #print(self.W.dot(phi))
-        oldv = self.Q[self.last_action, self.state[0], self.state[1]] = np.sum(self.W.dot(phi))
+        oldv = self.Q[self.last_action, self.state[0], self.state[1]] = np.sum(self.W*phi)
         maxqnew = max([self.Q[a, next_st[0], next_st[1]] for a in range(3)])
         difference = reward + self.discount * maxqnew - oldv
         self.W += self.learning_rate * difference * phi
@@ -178,12 +178,12 @@ class Tester:
 
 if __name__ == "__main__":
     # modify RandomAgent by your own agent with the parameters you want
-    # agent = MyAgent()
-    agent = RandomAgent()
+    agent = MyAgent()
+    # agent = RandomAgent()
     test = Tester(agent)
     # you can (and probably will) change these values, to make your system
     # learn longer
-    test.learn(10, 50)
+    test.learn(10, 10000)
 
     print("End of learning, press Enter to visualize...")
     input()
