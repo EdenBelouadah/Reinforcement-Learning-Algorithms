@@ -178,11 +178,12 @@ class Tester:
 
 if __name__ == "__main__":
     # modify RandomAgent by your own agent with the parameters you want
-    agent = MyAgent()
+    # agent = MyAgent()
+    agent = RandomAgent()
     test = Tester(agent)
     # you can (and probably will) change these values, to make your system
     # learn longer
-    test.learn(50, 10000)
+    test.learn(10, 50)
 
     print("End of learning, press Enter to visualize...")
     input()
