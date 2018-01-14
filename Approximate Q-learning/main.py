@@ -28,7 +28,7 @@ class RandomAgent():
 # implement your own agent here
 
 class MyAgent():
-    def __init__(self, p=10, k=10, discount=0.6, learning_rate=0.1, epsilon=1):
+    def __init__(self, p=2, k=2, discount=0.6, learning_rate=0.1, epsilon=1):
         """
         Initialize your internal state
         """
@@ -37,21 +37,33 @@ class MyAgent():
         self.epsilon = epsilon
         self.p = p
         self.k = k
+
+
+
         self.s = np.empty((p + 1, k + 1), dtype=tuple)
         for i in range(self.s.shape[0]):
             for j in range(self.s.shape[1]):
-                self.s[i, j
-                ] = (-150 + i * 150 / p, -20 + j * 40 / k)
-        self.state = (np.random.choice(1,[p+1, k+1]), 0)
-        self.W = np.zeros((3, p+1, k+1))
+                self.s[i, j] = (-150 + i * 150 / p, -20 + j * 40 / k)
+        #print(self.s)
+        # print(self.calculate_phi(-150, -20, self.s))
+
+        self.state = np.array([1, 1])
+        # self.n = 3
+        self.W = np.zeros((p+1, k+1))
+        # self.W = np.random.rand(self.n)
+        # self.phi = np.random.rand(self.n)
         self.Q = np.zeros((3, p + 1, k + 1))
+        # for a in range(3):
+        #     self.Q[a] = self.W.dot(self.phi.transpose())
+
 
 
     def calculate_phi(self, x, vx, s):
-        phi = np.empty(self.p + 1, self.k + 1)
-        for i in range(self.phi.shape[0]):
-            for j in range(self.phi.shape[1]):
-                self.phi[i, j] = np.exp(-(x - s[i, j][0]) ** 2) * np.exp(-(vx - s[i, j][1]) ** 2)
+        # print("helo")
+        phi = np.empty((self.p + 1, self.k + 1))
+        for i in range(phi.shape[0]):
+            for j in range(phi.shape[1]):
+                phi[i, j] = np.exp(-(x - s[i, j][0]) ** 2) * np.exp(-(vx - s[i, j][1]) ** 2)
         return phi
 
     def act(self):
@@ -72,13 +84,29 @@ class MyAgent():
         """
         x = next_state[0]
         vx = next_state[1]
-        oldv = self.Q[self.last_action, self.state[0], self.state[1]]
-        maxqnew = max([self.Q[a,next_state[0], next_state[1]] for a in range(3)])#maximum des Q valeurs ) partir de l'état courant
-
+        phi = self.calculate_phi(x, vx, self.s)
+        get_max_indices = np.argmax(phi)
+        # print(phi)
+        # print("phi index="+str(get_max_indices))
+        # next_st = np.unravel_index(get_max_indices, 2)
+        # print("next state"+str(next_state))
+        next_st=np.array([get_max_indices//(self.p+1), get_max_indices%(self.p+1)])
+        # print("next st="+str(next_st))
+        #
+        # oldv = self.Q[self.last_action, self.state[0], self.state[1]]
+        # maxqnew = max([self.Q[a,next_state[0], next_state[1]] for a in range(3)])#maximum des Q valeurs ) partir de l'état courant
+        #
+        # difference = reward + self.discount * maxqnew - oldv
+        # self.Q[self.last_action, self.state[0], self.state[1]] += self.learning_rate * difference
+        # self.w += self.learning_rate * difference * self.phi
+        # self.state = next_state
+        #print(self.W.dot(phi))
+        oldv = self.Q[self.last_action, self.state[0], self.state[1]] = np.sum(self.W.dot(phi))
+        maxqnew = max([self.Q[a, next_st[0], next_st[1]] for a in range(3)])
         difference = reward + self.discount * maxqnew - oldv
-        self.Q[self.last_action, self.state[0], self.state[1]] += self.learning_rate * difference
-        self.w += self.learning_rate * difference * self.phi
-        self.state = next_state
+        self.W += self.learning_rate * difference * phi
+        self.state = next_st
+
 
 # test class, you do not need to modify this class
 class Tester:
@@ -154,7 +182,7 @@ if __name__ == "__main__":
     test = Tester(agent)
     # you can (and probably will) change these values, to make your system
     # learn longer
-    test.learn(10, 20)
+    test.learn(50, 10000)
 
     print("End of learning, press Enter to visualize...")
     input()
